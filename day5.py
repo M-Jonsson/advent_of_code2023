@@ -3,6 +3,14 @@ import regex as re
 
 
 def get_maps(data):
+    """Parse puzzle input to get all mapping patterns.
+
+    Args:
+        data (list): List of lines from the puzzle input.
+
+    Returns:
+        dict: Dictionary of mapping patterns for each conversion.
+    """    
     maps = {}
     current_map = ''
     for line in data[1:]:
@@ -19,11 +27,28 @@ def get_maps(data):
 
 
 def get_seeds(data):
+    """Extract seed ids from the first line of the input data.
+
+    Args:
+        data (list): List of lines from the puzzle input.
+
+    Returns:
+        list: List of ids
+    """    
     seeds = [int(seed_id) for seed_id in re.findall(r'\d+', data[0])]
     return seeds
 
 
-def convert_ids(id, map_subset):
+def convert_id(id, map_subset):
+    """Converts an id based on the provided mapping pattern.
+
+    Args:
+        id (int): Starting id.
+        map_subset (list): List of mapping parameters.
+
+    Returns:
+        int: Destination id.
+    """    
     # Output defaults to input if not mapped
     destination_id = id
 
@@ -39,16 +64,28 @@ def convert_ids(id, map_subset):
 
 
 def get_all_ids(seeds, maps):
+    """Converts all provided soil ids to location ids 
+    according to the mapping patterns.
+    Stores all intermediary ids during mapping and 
+    returns a list with all ids for each initial seed id.
+
+    Args:
+        seeds (list): List of seed ids.
+        maps (dict): Dict with mapping patterns converting from soil to location.
+
+    Returns:
+        list: List with list of all intermediary ids for each starting seed id. 
+    """    
     ids = []
     for seed_id in seeds:
-        soil_id = convert_ids(seed_id, maps['seed-to-soil'])
-        fertilized_id = convert_ids(soil_id, maps['soil-to-fertilizer'])
-        water_id = convert_ids(fertilized_id, maps['fertilizer-to-water'])
-        light_id = convert_ids(water_id, maps['water-to-light'])
-        temperature_id = convert_ids(light_id, maps['light-to-temperature'])
-        humidity_id = convert_ids(
+        soil_id = convert_id(seed_id, maps['seed-to-soil'])
+        fertilized_id = convert_id(soil_id, maps['soil-to-fertilizer'])
+        water_id = convert_id(fertilized_id, maps['fertilizer-to-water'])
+        light_id = convert_id(water_id, maps['water-to-light'])
+        temperature_id = convert_id(light_id, maps['light-to-temperature'])
+        humidity_id = convert_id(
             temperature_id, maps['temperature-to-humidity'])
-        location_id = convert_ids(humidity_id, maps['humidity-to-location'])
+        location_id = convert_id(humidity_id, maps['humidity-to-location'])
         ids.append([seed_id, soil_id, fertilized_id, water_id, light_id,
                     temperature_id, humidity_id, location_id])
 
@@ -62,12 +99,13 @@ def solution1(ids):
     return closest_location
 
 
-data = read_file(5)
-all_maps = get_maps(data)
-all_seeds = get_seeds(data)
-all_ids = get_all_ids(all_seeds, all_maps)
+if __name__ == "__main__":
+    data = read_file(5)
+    all_maps = get_maps(data)
+    all_seeds = get_seeds(data)
+    all_ids = get_all_ids(all_seeds, all_maps)
 
-print(solution1(all_ids))
+    print(f'Solution to part 1: {solution1(all_ids)}')
 
-# Skipping part 2 for now
-# Brute force with all seeds takes too long
+    # Skipping part 2 for now
+    # Brute force with all seeds takes too long
